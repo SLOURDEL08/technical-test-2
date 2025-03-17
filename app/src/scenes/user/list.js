@@ -109,7 +109,7 @@ const Create = () => {
               onSubmit={async (values, { setSubmitting }) => {
                 try {
                   values.status = "active";
-                  values.availability = "not available";
+                  values.availability = "available";
                   values.role = "ADMIN";
                   const res = await api.post("/user", values);
                   if (!res.ok) throw res;
