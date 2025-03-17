@@ -7,6 +7,7 @@ import api from "../../services/api";
 
 import SelectProject from "../../components/selectProject";
 import SelectMonth from "./../../components/selectMonth";
+import UserWorkComparison from "../../components/UserWorkComparison";
 
 import { getDaysInMonth } from "./utils";
 
@@ -31,7 +32,6 @@ const Activity = () => {
   if (user === null) return <Loader />;
 
   return (
-    // Container
     <div className="w-screen md:w-full">
       <div className="flex flex-wrap gap-5 p-2 md:!px-8">
         <SelectProject
@@ -131,115 +131,121 @@ const Activities = ({ date, user, project }) => {
   return (
     <div className="flex flex-wrap py-3 gap-4 text-black">
       <div className="w-screen md:w-full p-2 md:!px-8">
-        {/* Table Container */}
-        {true && (
-          <div className="mt-2 rounded-xl bg-[#fff] overflow-auto">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="py-[10px] text-[14px] font-bold text-[#212325] text-left pl-[10px]">Projects</th>
-                    {days.map((e) => {
-                      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                      const _date = new Date(e);
-                      const day = _date.getDay();
-                      const weekday = days[day];
-                      const date = _date.getDate();
-                      return (
-                        <th
-                          className={`w-[20px] border border-[#E5EAEF] text-[12px] font-semibold text-center ${day == 0 || day == 6 ? "bg-[#FFD5F1]" : "bg-[white]"}`}
-                          key={e}
-                          day={day}>
-                          <div>{weekday}</div>
-                          <div>{date}</div>
-                        </th>
-                      );
-                    })}
-                    <th className={`w-[20px] border border-[#E5EAEF] text-[12px] font-semibold text-center bg-[white]`} />
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t border-b border-r border-[#E5EAEF]">
-                    <th className="px-2">
-                      <div className="flex justify-end w-full text-[12px] font-bold text-[#212325] italic">
-                        <div>{`${getTotal()} / ${getWorkingDays()} days`}</div>
-                      </div>
-                    </th>
-                    {days.map((e, i) => {
-                      const v = activities.reduce((acc, a) => {
-                        if (!a.detail[i]) return acc;
-                        return acc + a.detail[i].value;
-                      }, 0);
-                      return <Field key={`day-${i}`} value={v} disabled />;
-                    })}
-                  </tr>
-                  {activities.map((e, i) => {
+        <div className="mt-2 rounded-xl bg-[#fff] overflow-auto">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="py-[10px] text-[14px] font-bold text-[#212325] text-left pl-[10px]">Projects</th>
+                  {days.map((e) => {
+                    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                    const _date = new Date(e);
+                    const day = _date.getDay();
+                    const weekday = days[day];
+                    const date = _date.getDate();
                     return (
-                      <React.Fragment key={e._id || `${e.projectId}-${i}`}>
-                        <tr className="border-t border-b border-r border-[#E5EAEF]" key={`1-${e._id}`} onClick={() => setOpen(i)}>
-                          <th className="w-[100px] border-t border-b border-r text-[12px] font-bold text-[#212325] text-left">
-                            <div className="flex flex-1 items-center justify-between gap-1 px-2">
-                              <div className="flex flex-1 items-center justify-start gap-1">
-                                <div>{e.projectName}</div>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                <div className="text-xs italic font-normal">{(e.total / 8).toFixed(2)} days</div>
-                                <div className="text-[10px] italic font-normal">{(((e.total / 8).toFixed(2) / getTotal()) * 100).toFixed(2)}%</div>
-                              </div>
+                      <th
+                        className={`w-[20px] border border-[#E5EAEF] text-[12px] font-semibold text-center ${day == 0 || day == 6 ? "bg-[#FFD5F1]" : "bg-[white]"}`}
+                        key={e}
+                        day={day}>
+                        <div>{weekday}</div>
+                        <div>{date}</div>
+                      </th>
+                    );
+                  })}
+                  <th className={`w-[20px] border border-[#E5EAEF] text-[12px] font-semibold text-center bg-[white]`} />
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-b border-r border-[#E5EAEF]">
+                  <th className="px-2">
+                    <div className="flex justify-end w-full text-[12px] font-bold text-[#212325] italic">
+                      <div>{`${getTotal()} / ${getWorkingDays()} days`}</div>
+                    </div>
+                  </th>
+                  {days.map((e, i) => {
+                    const v = activities.reduce((acc, a) => {
+                      if (!a.detail[i]) return acc;
+                      return acc + a.detail[i].value;
+                    }, 0);
+                    return <Field key={`day-${i}`} value={v} disabled />;
+                  })}
+                  <th className="border border-[#E5EAEF]"></th>
+                </tr>
+                {activities.map((e, i) => {
+                  const uniqueKey = e._id || `${e.projectId}-${i}`;
+                  return (
+                    <React.Fragment key={uniqueKey}>
+                      <tr className="border-t border-b border-r border-[#E5EAEF]" onClick={() => setOpen(i)}>
+                        <th className="w-[100px] border-t border-b border-r text-[12px] font-bold text-[#212325] text-left">
+                          <div className="flex flex-1 items-center justify-between gap-1 px-2">
+                            <div className="flex flex-1 items-center justify-start gap-1">
+                              <div>{e.projectName}</div>
                             </div>
-                          </th>
-                          {e.detail.map((f, j) => {
-                            return (
-                              <Field
-                                key={`${e._id || e.projectId}-day-${j}`}
-                                invoiced={e.invoiced}
-                                value={f.value || 0}
-                                onChange={(a) => onUpdateValue(i, j, parseFloat(a.target.value || 0))}
-                              />
-                            );
-                          })}
-                          <th className={`border border-[#E5EAEF] py-[6px]`}>
-                            <div className={`flex justify-center cursor-pointer text-xl hover:text-red-500`}>
-                              <MdDeleteForever onClick={() => onDelete(i)} />
+                            <div className="flex flex-col items-end">
+                              <div className="text-xs italic font-normal">{(e.total / 8).toFixed(2)} days</div>
+                              <div className="text-[10px] italic font-normal">{(((e.total / 8).toFixed(2) / getTotal()) * 100).toFixed(2)}%</div>
                             </div>
-                          </th>
-                        </tr>
+                          </div>
+                        </th>
+                        {e.detail.map((f, j) => {
+                          return (
+                            <Field
+                              key={`${uniqueKey}-day-${j}`}
+                              invoiced={e.invoiced}
+                              value={f.value || 0}
+                              onChange={(a) => onUpdateValue(i, j, parseFloat(a.target.value || 0))}
+                            />
+                          );
+                        })}
+                        <th className={`border border-[#E5EAEF] py-[6px]`}>
+                          <div className={`flex justify-center cursor-pointer text-xl hover:text-red-500`}>
+                            <MdDeleteForever onClick={() => onDelete(i)} />
+                          </div>
+                        </th>
+                      </tr>
 
-                        {open === i && (
-                          <tr className="border border-[#E5EAEF]" key={`2-${e._id}`}>
-                            <th className="w-[100px] border border-[#E5EAEF]  text-[12px] font-bold text-[#212325] text-left pl-[10px]">
+                      {open === i && (
+                        <>
+                          <tr className="border border-[#E5EAEF]">
+                            <th className="w-[100px] border border-[#E5EAEF] text-[12px] font-bold text-[#212325] text-left pl-[10px]">
                               <div></div>
                             </th>
                             <th colSpan="30">
                               <div className="w-full">
-                                {/* <th>My Work Space</th> */}
                                 <textarea
-                                  value={e.comment}
-                                  onChange={(e) => onUpdateComment(i, e.target.value)}
-                                  placeholder={`Please add a comment on what you deliver on ${e.project} (We need to show value created to clients)`}
+                                  value={e.comment || ""}
+                                  onChange={(evt) => onUpdateComment(i, evt.target.value)}
+                                  placeholder={`Please add a comment on what you deliver on ${e.projectName || e.project} (We need to show value created to clients)`}
                                   rows={6}
                                   className="w-full text-sm pt-2 pl-2"
                                 />
                               </div>
                             </th>
                           </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                  <tr>
-                    <th className="w-[50px] text-[12px] text-[#212325] px-[10px] py-2">
-                      <SelectProject disabled={activities.map((e) => e.project)} value="" onChange={(e) => onAddActivities(e)} />
-                    </th>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <button className="m-3 w-[82px] h-[48px] py-[12px] px-[22px] bg-[#0560FD] text-[16px] font-medium text-[#fff] rounded-[10px]" onClick={onSave}>
-              Save
-            </button>
+
+                          <tr className="border-t-0 border border-[#E5EAEF]">
+                            <th colSpan="32" className="px-0">
+                              <UserWorkComparison projectId={e.projectId} date={date} />
+                            </th>
+                          </tr>
+                        </>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+                <tr>
+                  <th className="w-[50px] text-[12px] text-[#212325] px-[10px] py-2">
+                    <SelectProject disabled={activities.map((e) => e.project)} value="" onChange={(e) => onAddActivities(e)} />
+                  </th>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        )}
+          <button className="m-3 w-[82px] h-[48px] py-[12px] px-[22px] bg-[#0560FD] text-[16px] font-medium text-[#fff] rounded-[10px]" onClick={onSave}>
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -4,20 +4,30 @@ const router = express.Router();
 
 const ActivityObject = require("../models/activity");
 const ProjectObject = require("../models/project");
+const UserObject = require("../models/user");
 
 const SERVER_ERROR = "SERVER_ERROR";
 
 router.get("/", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const query = {};
-    if (req.query.userId) query.user = req.query.userId;
+    if (req.query.userId) query.userId = req.query.userId;
+    if (req.query.user && req.query.user !== "all") {
+      const user = await UserObject.findOne({ name: req.query.user });
+      if (user) query.userId = user._id;
+    }
     if (req.query.projectId) query.projectId = req.query.projectId;
     if (req.query.date) {
       if (req.query.date.startsWith("gte:")) {
         const date = new Date(parseInt(req.query.date.replace("gte:", "")));
         query.date = { $gte: date };
       } else {
-        query.date = req.query.date;
+        const dateObj = new Date(parseInt(req.query.date));
+        const year = dateObj.getFullYear();
+        const month = dateObj.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        query.date = { $gte: firstDay, $lte: lastDay };
       }
     }
 
