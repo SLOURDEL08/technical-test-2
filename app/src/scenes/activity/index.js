@@ -11,7 +11,7 @@ import SelectMonth from "./../../components/selectMonth";
 import { getDaysInMonth } from "./utils";
 
 const Activity = () => {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState("");
   const [user, setUser] = useState(null);
   const [project, setProject] = useState("");
 
@@ -36,7 +36,7 @@ const Activity = () => {
       <div className="flex flex-wrap gap-5 p-2 md:!px-8">
         <SelectProject
           value={project}
-          onChange={(e) => setProject(e.name)}
+          onChange={(e) => setProject(e._id)}
           className="w-[180px] bg-[#FFFFFF] text-[#212325] py-[10px] px-[14px] rounded-[10px] border-r-[16px] border-[transparent] cursor-pointer shadow-sm font-normal text-[14px]"
         />
         <SelectMonth start={-3} indexDefaultValue={3} value={date} onChange={(e) => setDate(e.target.value)} showArrows />
@@ -52,7 +52,7 @@ const Activities = ({ date, user, project }) => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get(`/activity?date=${date.getTime()}&user=${user.name}&project=${project}`);
+      const { data } = await api.get(`/activity?date=${date.getTime()}&user=${user.name}&projectId=${project}`);
       const projects = await api.get(`/project/list`);
       setActivities(
         data.map((activity) => {
@@ -61,7 +61,7 @@ const Activities = ({ date, user, project }) => {
       );
       setOpen(null);
     })();
-  }, [date]);
+  }, [date, project, user.name]);
 
   const days = getDaysInMonth(date.getMonth(), date.getFullYear());
   const onAddActivities = (project) => {
@@ -175,7 +175,7 @@ const Activities = ({ date, user, project }) => {
                   </tr>
                   {activities.map((e, i) => {
                     return (
-                      <React.Fragment key={e.project}>
+                      <React.Fragment key={e._id || `${e.projectId}-${i}`}>
                         <tr className="border-t border-b border-r border-[#E5EAEF]" key={`1-${e._id}`} onClick={() => setOpen(i)}>
                           <th className="w-[100px] border-t border-b border-r text-[12px] font-bold text-[#212325] text-left">
                             <div className="flex flex-1 items-center justify-between gap-1 px-2">
@@ -190,7 +190,12 @@ const Activities = ({ date, user, project }) => {
                           </th>
                           {e.detail.map((f, j) => {
                             return (
-                              <Field key={`${e.project} ${j}`} invoiced={e.invoiced} value={f.value || 0} onChange={(a) => onUpdateValue(i, j, parseFloat(a.target.value || 0))} />
+                              <Field
+                                key={`${e._id || e.projectId}-day-${j}`}
+                                invoiced={e.invoiced}
+                                value={f.value || 0}
+                                onChange={(a) => onUpdateValue(i, j, parseFloat(a.target.value || 0))}
+                              />
                             );
                           })}
                           <th className={`border border-[#E5EAEF] py-[6px]`}>

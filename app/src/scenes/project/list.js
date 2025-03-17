@@ -138,14 +138,17 @@ const Create = ({ onChangeSearch }) => {
             }}>
             {/* Modal Body */}
             <Formik
-              initialValues={{}}
+              initialValues={{
+                name: "",
+              }}
               onSubmit={async (values, { setSubmitting }) => {
                 try {
                   values.status = "active";
+                  setOpen(false);
                   const res = await api.post("/project", values);
                   if (!res.ok) throw res;
                   toast.success("Created!");
-                  setOpen(false);
+                  window.location.reload();
                 } catch (e) {
                   console.log(e);
                   toast.error("Some Error!", e.code);
@@ -156,12 +159,13 @@ const Create = ({ onChangeSearch }) => {
                 <React.Fragment>
                   <div className="w-full md:w-6/12 text-left">
                     <div>
-                      <div className="text-[14px] text-[#212325] font-medium	">Name</div>
+                      <div className="text-[14px] text-[#212325] font-medium">Name</div>
                       <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" value={values.name} onChange={handleChange} />
                     </div>
                     <LoadingButton
                       className="mt-[1rem] bg-[#0560FD] text-[16px] font-medium text-[#FFFFFF] py-[12px] px-[22px] rounded-[10px]"
                       loading={isSubmitting}
+                      type="button"
                       onClick={handleSubmit}>
                       Create
                     </LoadingButton>
